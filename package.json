@@ -1,7 +1,7 @@
 {
   "name": "redirect-server",
   "version": "1.0.0",
-  "description": "Small server with an UI to create redirects with. Can be used as an self-hosted shortlink service for example.",
+  "description": "Small server that uses MongoDB for redirecting. Can be used as an self-hosted shortlink service for example.",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
