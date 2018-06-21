@@ -1,0 +1,32 @@
+extends includes/layout.pug
+
+block content
+  .container-fluid
+    a(href="/rs/manage").btn.btn-sm.btn-primary.mb-3 Create new redirect
+    table.table.table-hover
+      thead
+        tr
+          th Path
+          th Destination
+          th Type
+          th Info
+          th Actions
+      tbody
+        tr
+          td.text-monospace /wua
+          td: a(href="https://systems.al", target="_blank") https://systems.al
+          td Temporary
+          td.font-italic Blabla...
+        each redirect in redirects
+          tr
+            td.text-monospace /#{redirect.path}
+            td: a(href=redirect.destination, target="_blank")= redirect.destination
+            case redirect.type
+              when 301
+                td Primary
+              when 307
+                td Temporary
+              default
+                td= redirect.type
+            td.font-italic= redirect.info
+            td: a(href="/rs/manage/"+redirect.path).badge.badge-primary Edit
