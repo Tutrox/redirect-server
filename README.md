@@ -9,7 +9,7 @@ There's a small setup needed to get the server up and running...
 
 ### `.env`
 
-Create a `.env` file in the server root directory. Set these values:
+Create a `.env` file in the server root directory. Set these values (_example below_):
 
 ```
 RS_NAME=Development
@@ -25,7 +25,7 @@ RS_SECRET=supersecret
 
 ### MongoDB
 
-The redirects will be saved to MongoDB to the **`redirects`** collection. Every entry looks like this:
+The redirects should be saved to MongoDB to the **`redirects`** collection. Every entry looks like this:
 
 ```json
 {
@@ -41,14 +41,14 @@ The redirects will be saved to MongoDB to the **`redirects`** collection. Every 
 
 ### (Server-side) cache
 
-redirect-server uses a cache that will reset when the server restarts. In case that you want to clear the case for **one** path, you have to do this:
+`redirect-server` uses a cache that will reset when the server restarts. In the case that you want to clear the case for **one** path without restarting the server, you have to do this:
 
 - Sign a JSON Web Token using the secret in `RS_SECRET` (**security**: make sure that the JWT expires in a short time)
 - Send a **`DELETE`** request to `http://your-redirect-server.com/rs/cache/<PATH>`
- - Use this header: `Authorization: Bearer <YOUR JSON WEB TOKEN>`
+  - Use this header: `Authorization: Bearer <YOUR JSON WEB TOKEN>`
 
-If we want to reset the cache for the example redirect that we created earlier we send a `DELETE` request to `http://your-redirect-server.com/rs/cache/example` with the header `Authorization: Bearer jU5tANex4mplEt0ken`.
+So if we want to reset the cache for the example redirect that we created earlier we send a `DELETE` request to `http://your-redirect-server.com/rs/cache/example` with the header `Authorization: Bearer jU5tANex4mplEt0ken`.
 
 #### When should the cache be emptied?
 
-The primary reason is if you have **updated** and redirect in the database. redirect-server will not notice this if the redirect is in the internal cache.
+The primary reason is if you have **updated** an redirect in the database. `redirect-server` will not notice this if the redirect is in the internal cache.
