@@ -6,6 +6,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const memcache = require("memory-cache");
 const db = require("./db");
+const auth = require("express-jwt");
 
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -31,6 +32,15 @@ app.get("/:redir", cache, (req, res) => {
       memcache.put(redirect.path, redirect);
     }
   });
+});
+
+app.delete("/rs/cache/:redir", auth({secret: process.env.RS_SECRET}), (err, req, res, next) => {
+  if (err.name === "UnauthorizedError") {
+    res.status(401).send("Authorization failed!");
+  }
+}, (req, res) => {
+  memcache.del(req.params.redir);
+  res.send(`${req.params.redir} removed from cache`)
 });
 
 app.listen(process.env.RS_PORT, () => console.log(`redirect-server is running on port ${process.env.RS_PORT}`));
