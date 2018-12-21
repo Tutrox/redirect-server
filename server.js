@@ -6,9 +6,20 @@ const app = express();
 const bodyParser = require("body-parser");
 const memcache = require("memory-cache");
 const db = require("./db");
-const auth = require("express-jwt");
+const jwt = require("jsonwebtoken");
+const update = require("./update");
 
 app.use(bodyParser.urlencoded({extended: true}));
+
+const auth = (req, res, next) => {
+  jwt.verify(req.query.token, process.env.RS_SECRET, {issuer: process.env.RS_NAME}, err => {
+    if (err) {
+      res.status(401).send("Authentication error");
+    } else {
+      next();
+    }
+  });
+};
 
 const cache = (req, res, next) => {
   let cachekey = memcache.get(req.params.redir);
@@ -20,6 +31,7 @@ const cache = (req, res, next) => {
 };
 
 app.get("/", (req, res) => {
+  update.checkUpdates();
   res.send(`redirect-server ${module.exports.version} / ${process.env.RS_NAME}`);
 });
 
@@ -34,15 +46,33 @@ app.get("/:redir", cache, (req, res) => {
   });
 });
 
-// eslint-disable-next-line no-unused-vars
-app.delete("/rs/cache/:redir", auth({secret: process.env.RS_SECRET}), (err, req, res, next) => {
-  if (err.name === "UnauthorizedError") {
-    res.status(401).send("Authorization failed!");
-  }
-}, (req, res) => {
+const management = process.env.RS_MANAGEMENT_PATH || "rs";
+
+app.get(`/${management}/info`, auth, (req, res) => {
+  update.checkUpdates(status => {
+    res.send(`redirect-server (${process.env.RS_NAME}) v${module.exports.version}
+    Thanks for using redirect-server by Klooven!
+    
+    Update status: ${status.available ? `Version ${status.new} is available. Your version is ${status.current}` : "You're up to date!"}
+
+    Before updating, see the changelog: https://github.com/Tutrox/redirect-server/releases
+    We try to follow semver.`);
+  });
+});
+
+app.delete(`/${management}/cache/:redir`, auth, (req, res) => {
   memcache.del(req.params.redir);
   res.send(`${req.params.redir} removed from cache`);
 });
 
-// eslint-disable-next-line no-console
-app.listen(process.env.RS_PORT, () => console.log(`redirect-server is running on port ${process.env.RS_PORT}`));
+/*eslint-disable no-console*/
+app.listen(process.env.RS_PORT, () => {
+  console.log(`redirect-server (${process.env.RS_NAME}) is running on port ${process.env.RS_PORT}`);
+  if (!process.env.RS_NAME || !process.env.RS_PORT || !process.env.RS_DATABASE || !process.env.RS_SECRET) {
+    console.log(`
+    ----------------------------------------------------------------------
+    Required configuration not completed. Server NOT READY FOR PRODUCTION!
+    ----------------------------------------------------------------------`);
+  }
+});
+/*eslint-enable no-console*/
