@@ -1,10 +1,10 @@
 {
   "name": "redirect-server",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Small server that uses MongoDB for redirecting. Can be used as an self-hosted shortlink service for example.",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "eslint '**/*.js'",
     "build": "scss-powertools scss/rs.scss assets/rs.min.css -m"
   },
   "repository": {
@@ -19,11 +19,14 @@
   "homepage": "https://github.com/Tutrox/redirect-server#readme",
   "dependencies": {
     "body-parser": "^1.18.3",
-    "dotenv": "^6.0.0",
-    "express": "^4.16.3",
+    "dotenv": "^6.2.0",
+    "express": "^4.16.4",
     "express-jwt": "^5.3.1",
     "memory-cache": "^0.2.0",
-    "mongoose": "^5.1.6",
+    "mongoose": "^5.4.0",
     "pkginfo": "^0.4.1"
+  },
+  "devDependencies": {
+    "eslint": "^5.10.0"
   }
 }
