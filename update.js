@@ -26,6 +26,14 @@ function checkUpdates(callback) {
  */
 function notifyUpdates() {
   //Check and notify
+  //DO NOT NOTIFY MULTIPLE TIMES
+  request.post(process.env.RS_UPDATE_WEBHOOK, {
+    json: {
+      text: `redirect-server \`${process.env.RS_NAME}\` has a new version (${status.new}) available. _The current version is ${status.current}_.`
+    }
+  }, (err, res, body) => {
+    //do something
+  });
 }
 
 module.exports = {
