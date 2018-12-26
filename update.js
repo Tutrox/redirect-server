@@ -1,4 +1,5 @@
 const request = require("request");
+const jwt = require("jsonwebtoken");
 
 /**
  * Checks for updates and returns status to the callback
@@ -30,18 +31,37 @@ function notifyUpdates() {
   if (process.env.RS_UPDATE_WEBHOOK && !notified) {
     checkUpdates(status => {
       if (status.available) {
-        request.post(process.env.RS_UPDATE_WEBHOOK, {
-          json: {
-            text: `redirect-server \`${process.env.RS_NAME}\` has a new version (*${status.new}*) available. The current version is ${status.current}.`
-          }
-        }, (err, res, body) => {
-          if (err) {
-            console.log(`redirect-server has a new version (${status.new}) but notifying to webhook failed`);
+        jwt.sign({}, process.env.RS_SECRET, {expiresIn: "1m", issuer: process.env.RS_NAME}, (err, token) => {
+          if (!err) {
+            const info = `${process.env.RS_ADRESS}/${process.env.RS_MANAGEMENT_PATH || "rs"}/info?token=${token}`;
+            
+            request.post(process.env.RS_UPDATE_WEBHOOK, {
+              json: {
+                text: `redirect-server \`${process.env.RS_NAME}\` has a new version (*${status.new}*) available. _The current version is ${status.current}_.`,
+                attachments: [{
+                  fallback: `You can read more at ${info}`,
+                  actions: [{
+                    type: "button",
+                    text: "Read more",
+                    url: info
+                  }]
+                }]
+              }
+            }, err => {
+              if (err) {
+                // eslint-disable-next-line no-console
+                console.log(`redirect-server has a new version (${status.new}) but notifying to webhook failed (request error)`);
+              } else {
+                // eslint-disable-next-line no-console
+                console.log(`redirect-server has a new version (${status.new}). Notification sent to webhook`);
+              }
+              notified = true;
+            });
           } else {
-            console.log(`redirect-server has a new version (${status.new}). Notification sent to webhook`);
+            // eslint-disable-next-line no-console
+            console.log(`redirect-server has a new version (${status.new}) but notifying to webhook failed (jwt sign failed)`);
           }
-          notified = true;
-        });  
+        });
       }
     });
   }
