@@ -31,7 +31,6 @@ const cache = (req, res, next) => {
 };
 
 app.get("/", (req, res) => {
-  update.checkUpdates();
   res.send(`redirect-server ${module.exports.version} / ${process.env.RS_NAME}`);
 });
 
@@ -67,12 +66,18 @@ app.delete(`/${management}/cache/:redir`, auth, (req, res) => {
 
 /*eslint-disable no-console*/
 app.listen(process.env.RS_PORT, () => {
-  console.log(`redirect-server (${process.env.RS_NAME}) is running on port ${process.env.RS_PORT}`);
-  if (!process.env.RS_NAME || !process.env.RS_PORT || !process.env.RS_DATABASE || !process.env.RS_SECRET) {
+  console.log(`redirect-server (${process.env.RS_NAME}) is running on ${process.env.RS_ADRESS}`);
+
+  update.notifyUpdates();
+  
+  if (!process.env.RS_NAME || !process.env.RS_PORT || !process.env.RS_DATABASE || !process.env.RS_SECRET || !process.env.RS_ADRESS) {
     console.log(`
     ----------------------------------------------------------------------
     Required configuration not completed. Server NOT READY FOR PRODUCTION!
     ----------------------------------------------------------------------`);
+  }
+  if (!process.env.RS_UPDATE_WEBHOOK) {
+    console.log("\nAutomatic update notifications not enabled. Consider enabling them.");
   }
 });
 /*eslint-enable no-console*/
