@@ -1,7 +1,11 @@
 # redirect-server
 Small server that uses MongoDB for redirecting. Can be used as an self-hosted shortlink service for example.
 
-**TODO**: Create an interactive UI to manage the server with.
+### Note!
+
+In January 2021 project will be archived and no new changes will be made. Please also note that the server hasn't been tested in production, so be careful! You are free to borrow any code you might find useful. :smile:
+
+Read more at https://klooven.link/archive.
 
 ## Usage
 
@@ -39,7 +43,7 @@ The redirects should be saved to MongoDB to the **`redirects`** collection. Ever
 - `destination` is the URL where to redirect the user
 - `type` is the HTTP status code, recommended codes are 301 (permanent) and 307 (temporary)
 
-### (Server-side) cache
+### Server-side cache
 
 `redirect-server` uses a cache that will reset when the server restarts. In the case that you want to clear the case for **one** path without restarting the server, you have to do this:
 
